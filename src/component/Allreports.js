@@ -15,7 +15,9 @@ const Allreports = () => {
     setIsRefreshing(true);
     try {
       const response = await axios.get('https://elephant-tracker-api.onrender.com/api/elephant-sightings/confirmed');
-      setMessages(response.data.confirmedSightings);
+      // Sort the confirmedSightings array based on timestamp in descending order
+      const sortedSightings = response.data.confirmedSightings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setMessages(sortedSightings);
     } catch (error) {
       console.error('Error fetching sightings:', error);
     } finally {
@@ -23,6 +25,7 @@ const Allreports = () => {
       setIsRefreshing(false);
     }
   };
+  
 
   const handleRefresh = () => {
     setIsRefreshing(true);

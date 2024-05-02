@@ -14,6 +14,7 @@ import ReportsScreen from './src/screens/ReportsScreen';
 import AdminReportScreen from './src/screens/AdminReportScreen';
 import LoginScreen from './src/screens/Loginscreen';
 import RewardsScreen from './src/screens/RewardsScreen';
+import Reportpage from './src/component/ReportModal';
 const Stack = createNativeStackNavigator ();
 
 export default function App() {
@@ -53,6 +54,8 @@ export default function App() {
       <Stack.Screen name="ReportsScreen" component={ReportsScreen} />
       <Stack.Screen name="AdminReportScreen" component={AdminReportScreen} />
       <Stack.Screen name="RewardsScreen" component={RewardsScreen} />
+      <Stack.Screen name="Reportpage" component={Reportpage} />
+
 
 
  

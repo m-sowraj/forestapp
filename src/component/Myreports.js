@@ -7,16 +7,20 @@ const Myreports = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchMessages = async () => {
+    setIsRefreshing(true);
     try {
       const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/user/662bd6a5c7bb26949f85185c`);
-      setMessages(response.data.sightings);
-      console.log(response.data.sightings);
+      // Sort the sightings array based on timestamp in descending order
+      const sortedSightings = response.data.sightings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setMessages(sortedSightings);
+      console.log(sortedSightings);
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
       setIsRefreshing(false);
     }
   };
+  
 
   const handleRefresh = () => {
     setIsRefreshing(true);

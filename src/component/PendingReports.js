@@ -1,22 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, Image, StyleSheet, RefreshControl ,  TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import ReportModal from './ReportModal';
+import { useNavigation } from '@react-navigation/native';
 
 const PendingReports = () => {
   const [messages, setMessages] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const navigation = useNavigation();
 
   const fetchMessages = async () => {
+    setIsRefreshing(true);
     try {
-       
-      const response1 = await axios.get(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/unconfirmed`);
-      console.log(response1.data.unconfirmedSightings);
-      setMessages(response1.data.unconfirmedSightings)
+      const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/unconfirmed`);
+      // Sort the unconfirmedSightings array based on timestamp in descending order
+      const sortedSightings = response.data.unconfirmedSightings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setMessages(sortedSightings);
+      console.log(sortedSightings);
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
       setIsRefreshing(false);
     }
+  };
+  
+  const handleReportPress = (report) => {
+    setSelectedReport(report);
+    setModalVisible(true);
+    navigation.navigate('Reportpage',{report:report})
+
   };
 
   const handleRefresh = () => {
@@ -69,10 +85,14 @@ const PendingReports = () => {
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
     >
       {messages.map((message, index) => (
+         <TouchableOpacity key={index} onPress={() => handleReportPress(message)}>
         <View key={index} style={styles.messageBubble}>
+        {/* <ReportModal visible={modalVisible} onClose={() => setModalVisible(false)} report={selectedReport} /> */}
           <Image source={require('../../assets/user.png')} style={styles.avatar} />
           <View style={styles.messageContent}>
             <Text>{message.description}</Text>
+            <Text>{new Date(message.timestamp).toLocaleString()}</Text>
+
             <View style={styles.buttoncontainer}>
             <TouchableOpacity
               style={[styles.button,  styles.activeButton]}
@@ -85,9 +105,9 @@ const PendingReports = () => {
               <Text style={styles.buttonText}>Reject</Text>
             </TouchableOpacity>
             </View>
-            <Text>{new Date(message.timestamp).toLocaleString()}</Text>
           </View>
         </View>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
