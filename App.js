@@ -13,6 +13,7 @@ import * as SecureStore from 'expo-secure-store';
 import ReportsScreen from './src/screens/ReportsScreen';
 import AdminReportScreen from './src/screens/AdminReportScreen';
 import LoginScreen from './src/screens/Loginscreen';
+import RewardsScreen from './src/screens/RewardsScreen';
 const Stack = createNativeStackNavigator ();
 
 export default function App() {
@@ -51,6 +52,8 @@ export default function App() {
       <Stack.Screen name="ReportScreen" component={ReportScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ReportsScreen" component={ReportsScreen} />
       <Stack.Screen name="AdminReportScreen" component={AdminReportScreen} />
+      <Stack.Screen name="RewardsScreen" component={RewardsScreen} />
+
 
  
     </Stack.Navigator>

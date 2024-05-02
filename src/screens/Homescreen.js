@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { PROVIDER_GOOGLE } from 'react-native-maps';
 import axios from 'axios'; // Import Axios
@@ -9,7 +9,7 @@ import customMarkerImage from '../../assets/elephant.png';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-
+  const [refreshing, setRefreshing] = useState(false); 
   const [location, setLocation] = useState(null);
   const [elephantSightings, setElephantSightings] = useState([]);
 
@@ -35,6 +35,15 @@ export default function HomeScreen() {
     }
   };
 
+  const handleRefresh = () => {
+    setRefreshing(true); // Set refreshing indicator to true
+    // Fetch location and elephant sightings data again
+    getLocation();
+   
+    fetchElephantSightings();
+    setRefreshing(false); // Set refreshing indicator back to false when done
+  };
+
   useEffect(() => {
     getLocation(); // Fetch location when component mounts
     fetchElephantSightings(); // Fetch elephant sightings when component mounts
@@ -42,6 +51,12 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      {refreshing && ( // Conditionally render loader when loading is true
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color="#E04B35" style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1000 }} />
+
+        </View>
+      )}
       <View style={styles.header}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
         <Text style={styles.buttonText2}>Forest App</Text>
@@ -51,6 +66,12 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>Make a Report</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+        {/* <Text style={styles.refreshButtonText}>Refresh</Text> */}
+        <Image source={require('../../assets/refresh.png')} style={styles.refresh} />
+
+      </TouchableOpacity>
 
       {location && (
         <MapView
@@ -101,6 +122,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  
+  refreshButton: {
+    position: 'absolute',
+    bottom: '12%',
+    right: 20,
+    backgroundColor: '#00C782',
+    padding: 10,
+    borderRadius: 20,
+    elevation: 5,
+    zIndex:100
+  },
   report: {
     position: 'absolute',
     alignItems: 'center',
@@ -135,6 +167,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginRight: 10,
+  },
+  refresh:{
+    width: 20,
+    height: 20,
+
+   
   },
   buttonText2: {
     fontSize: 20,

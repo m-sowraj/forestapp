@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet ,Image  } from 'react-native';
-import Footer from '../component/footer';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 
@@ -9,132 +9,116 @@ const ProfileScreen = () => {
   const [type, settype] = useState(null)
 
   useEffect(() => {
-    const get = async () =>{
+    const get = async () => {
       const value = await SecureStore.getItemAsync('key');
-      if(value == null){
-          settype(1)
+      if (value == null) {
+        settype(1)
       }
-      else if(value == 1){
-          settype(1)
+      else if (value == 1) {
+        settype(1)
       }
-      else(
+      else (
         settype(2)
       )
     }
-    
+
     get();
   }, [type])
-  
+
   const handleBackPress = () => {
     navigation.goBack();
   };
-  
+
   const handleLogin = async (userType) => {
     try {
-      //  console.log(userType)
-      if(userType == 'admin'){
+      if (userType == 'admin') {
         settype(2)
-        
         SecureStore.setItemAsync('key', "2");
-        console.log(userType)
-       
       }
-      else{
+      else {
         settype(1)
         SecureStore.setItemAsync('key', "1");
-       
       }
-    
-      
     } catch (error) {
-     
+
     }
   };
 
-
   return (
-    <View style={styles.container}>
-        
-        <TouchableOpacity onPress={handleBackPress}>
-                    <Image source={require('../../assets/back.png')} style={styles.logo1} />
-                </TouchableOpacity>
-        <Image source={require('../../assets/profile.png')} style={styles.logo} />
-        <View style={styles.avatar}>
+    <View Style={{marginBottom:100}}>
+
+    <ScrollView contentContainerStyle={styles.container}>
+      <TouchableOpacity onPress={handleBackPress}>
+        <Image source={require('../../assets/back.png')} style={styles.logo1} />
+      </TouchableOpacity>
+      <Image source={require('../../assets/profile.png')} style={styles.logo} />
+      <View style={styles.avatar}>
         <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>S</Text>
-          </View>
+          <Text style={styles.avatarText}>S</Text>
         </View>
-        <View style={styles.container2}>
+      </View>
+      <View style={styles.container2}>
 
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.data}>sraj@example.com</Text>
-          <View style={styles.line}></View>
+        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.data}>sraj@example.com</Text>
+        <View style={styles.line}></View>
 
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.data}>Raj_s_Raj</Text>
-          <View style={styles.line}></View>
+        <Text style={styles.label}>Username:</Text>
+        <Text style={styles.data}>Raj_s_Raj</Text>
+        <View style={styles.line}></View>
 
-          <Text style={styles.label}>Fullname:</Text>
-          <Text style={styles.data}>SowRaj</Text>
-          <View style={styles.line}></View>
+        <Text style={styles.label}>Fullname:</Text>
+        <Text style={styles.data}>SowRaj</Text>
+        <View style={styles.line}></View>
 
-          <Text style={styles.label}>Password:</Text>
-          <Text style={styles.data}>*******</Text>
-          <View style={styles.line}></View>
+        <Text style={styles.label}>Password:</Text>
+        <Text style={styles.data}>*******</Text>
+        <View style={styles.line}></View>
 
-          <Text style={styles.label}>Phone Number:</Text>
-          <Text style={styles.data}>123-456-7890</Text>
-          <View style={styles.line}></View>
+        <Text style={styles.label}>Phone Number:</Text>
+        <Text style={styles.data}>123-456-7890</Text>
+        <View style={styles.line}></View>
 
-        </View>
- 
+      </View>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('RewardsScreen')}>
+          <Text style={styles.buttonText2}>Rewards</Text>
+        </TouchableOpacity>
 
-      {/* <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('login')} >
-        <Text style={styles.buttonText2}>Logout</Text>
-      </TouchableOpacity> */}
-     
-      {
-        type == 1 && (
-          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
+      {type == 1 && (
+        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
           <Text style={styles.buttonText2}>Login as Admin</Text>
         </TouchableOpacity>
-        )
-      }
-      
-      {
-        type == 2 && (
-          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('user')}>
+      )}
+
+      {type == 2 && (
+        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('user')}>
           <Text style={styles.buttonText2}>Login as User</Text>
         </TouchableOpacity>
-        )
-      }
- 
+      )}
 
-        
-  
+         
 
-  
+       
+    </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor:'#eaf3f5',
-    width:'100%',
-    marginBottom:75,
+    backgroundColor: '#eaf3f5',
+    
   },
-  container2:{
-    justifyContent:'flex-start',
-    marginHorizontal:15,
+  container2: {
+    justifyContent: 'flex-start',
+    marginHorizontal: 15,
   },
-  avatar:{
- 
-    marginBottom:10,
-    alignItems:'center'
+  avatar: {
+    marginBottom: 10,
+    alignItems: 'center'
   },
   avatarContainer: {
     width: 110,
@@ -156,7 +140,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginBottom: 10,
-    fontWeight:'bold'
+    fontWeight: 'bold'
   },
   data: {
     fontSize: 18,
@@ -166,16 +150,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'white',
     marginBottom: 10,
-    zIndex:-1
   },
   logoutButton: {
     marginTop: 20,
-    borderWidth:1,
-    borderBlockColor:'green',
+    borderWidth: 1,
+    borderColor: 'green',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 15,
-    alignItems:'center',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
@@ -185,12 +168,12 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
   },
-  logo:{
-    position:'absolute',
-    right:0,
-    top:'10%',
-    width:180,
-    height:330,
+  logo: {
+    position: 'absolute',
+    right: 0,
+    top: '10%',
+    width: 180,
+    height: 330,
   },
   logo1: {
     width: 30,
@@ -199,6 +182,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
 
 export default ProfileScreen;
