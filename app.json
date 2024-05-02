@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "forestapp",
+    "slug": "forestapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.anthills.forestapp",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBBTDH8tbMMaQlJJWN9eLxdOkQI_6rAGZg"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a877ee3b-feab-4a73-8d8f-bf861fc3cfd4"
+      }
+    }
+  }
+}
