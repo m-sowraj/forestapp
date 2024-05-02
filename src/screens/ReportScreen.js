@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Button, TextInput, Image, Alert, Text, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Audio } from 'expo-av';
-import { Picker } from '@react-native-picker/picker';
+
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import * as Location from 'expo-location'; // Import Location from expo
+import AudioRecorder from '../component/AudioRecord';
 
 export default function ReportScreen() {
   const [image, setImage] = useState(null);
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [recording, setRecording] = useState(null);
+
   const navigation = useNavigation();
   
 
@@ -85,7 +84,7 @@ export default function ReportScreen() {
         console.log('Submission successful:', response.data);
         // Reset the form after successful submission
         setImage(null);
-        setTitle('');
+  
         setDescription('');
       })
       .catch(error => {
@@ -95,33 +94,6 @@ export default function ReportScreen() {
       });
   };
   
-  const startRecording = async () => {
-    try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Sorry, we need audio recording permissions to make this work!');
-        return;
-      }
-
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-      await recording.startAsync();
-      setRecording(recording);
-    } catch (error) {
-      console.error('Failed to start recording', error);
-    }
-  };
-
-  const stopRecording = async () => {
-    try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setRecording(null);
-      console.log('Recording stopped', uri);
-    } catch (error) {
-      console.error('Failed to stop recording', error);
-    }
-  };
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -137,14 +109,7 @@ export default function ReportScreen() {
                  <Text style={styles.buttonText2}>Make a New Report</Text>
                </View>
 
-    {/* <View style={styles.imgcontainer}>
-      <TouchableOpacity style={styles.button} onPress={pickImage}>
-        <Text style={styles.buttonText}>Pick an image from gallery</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={takePhoto}>
-        <Text style={styles.buttonText}>Take a photo</Text>
-      </TouchableOpacity>
-      </View> */}
+ 
       {image && (
         <>
             <Image source={{ uri: image }} style={styles.image} />
@@ -175,16 +140,6 @@ export default function ReportScreen() {
       
       }
 
-    {/* <Picker
-    selectedValue={title}
-    onValueChange={(itemValue, itemIndex) => setTitle(itemValue)}
-    style={[styles.input, { backgroundColor:"#00C782"}]}
-    >
-    <Picker.Item label="Select an option" value="" />
-    <Picker.Item label="Elephant" value="Elephant" />
-    <Picker.Item label="Other" value="Other" />
-    </Picker> */}
-
 
       <TextInput
         style={[styles.input, { height: 100}]}
@@ -194,12 +149,7 @@ export default function ReportScreen() {
         multiline
       />
 
-    {/* {recording ? (
-        <Button title="Stop Recording" onPress={stopRecording} />
-      ) : (
-        <Button title="Start Recording" onPress={startRecording} />
-      )} */}
-
+      <AudioRecorder />
             
 
 <TouchableOpacity
