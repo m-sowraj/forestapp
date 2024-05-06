@@ -78,7 +78,11 @@ const formatDate = (timestamp) => {
   };
   
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+    contentContainerStyle={styles.scrollViewContainer}
+    showsVerticalScrollIndicator={false}
+  >
+    <View style={styles.container}>
       
 
       {rewards.length === 0 ? (
@@ -108,7 +112,7 @@ const formatDate = (timestamp) => {
         )}
         </View></>
       )}
-
+  </View>
     </ScrollView>
   );
 };
@@ -118,6 +122,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     backgroundColor: '#eaf3f5',
+    marginBottom:80,
   },
   loaderContainer: {
     flex: 1,

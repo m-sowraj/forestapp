@@ -17,9 +17,9 @@ const ProfileScreen = () => {
       else if (value == 1) {
         settype(1)
       }
-      else (
+      else {
         settype(2)
-      )
+      }
     }
 
     get();
@@ -45,76 +45,75 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View Style={{marginBottom:100}}>
-
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={handleBackPress}>
-        <Image source={require('../../assets/back.png')} style={styles.logo1} />
-      </TouchableOpacity>
-      <Image source={require('../../assets/profile.png')} style={styles.logo} />
-      <View style={styles.avatar}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>S</Text>
+       <ScrollView
+      contentContainerStyle={styles.scrollViewContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.container}>
+        <TouchableOpacity onPress={handleBackPress}>
+          <Image source={require('../../assets/back.png')} style={styles.logo1} />
+        </TouchableOpacity>
+        <Image source={require('../../assets/profile.png')} style={styles.logo} />
+        <View style={styles.avatar}>
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>S</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.container2}>
+        <View style={styles.container2}>
 
-        <Text style={styles.label}>Email:</Text>
-        <Text style={styles.data}>sraj@example.com</Text>
-        <View style={styles.line}></View>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.data}>sraj@example.com</Text>
+          <View style={styles.line}></View>
 
-        <Text style={styles.label}>Username:</Text>
-        <Text style={styles.data}>Raj_s_Raj</Text>
-        <View style={styles.line}></View>
+          <Text style={styles.label}>Username:</Text>
+          <Text style={styles.data}>Raj_s_Raj</Text>
+          <View style={styles.line}></View>
 
-        <Text style={styles.label}>Fullname:</Text>
-        <Text style={styles.data}>SowRaj</Text>
-        <View style={styles.line}></View>
+          <Text style={styles.label}>Fullname:</Text>
+          <Text style={styles.data}>SowRaj</Text>
+          <View style={styles.line}></View>
 
-        <Text style={styles.label}>Password:</Text>
-        <Text style={styles.data}>*******</Text>
-        <View style={styles.line}></View>
+          <Text style={styles.label}>Password:</Text>
+          <Text style={styles.data}>*******</Text>
+          <View style={styles.line}></View>
 
-        <Text style={styles.label}>Phone Number:</Text>
-        <Text style={styles.data}>123-456-7890</Text>
-        <View style={styles.line}></View>
+          <Text style={styles.label}>Phone Number:</Text>
+          <Text style={styles.data}>123-456-7890</Text>
+          <View style={styles.line}></View>
 
-      </View>
-      <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('RewardsScreen')}>
+        </View>
+        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('RewardsScreen')}>
           <Text style={styles.buttonText2}>Rewards</Text>
         </TouchableOpacity>
 
-      {type == 1 && (
-        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
-          <Text style={styles.buttonText2}>Login as Admin</Text>
-        </TouchableOpacity>
-      )}
+        {type == 1 && (
+          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
+            <Text style={styles.buttonText2}>Login as Admin</Text>
+          </TouchableOpacity>
+        )}
 
-      {type == 2 && (
-        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('user')}>
-          <Text style={styles.buttonText2}>Login as User</Text>
-        </TouchableOpacity>
-      )}
-
-         
-
-       
-    </ScrollView>
-    </View>
-  );
+        {type == 2 && (
+          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('user')}>
+            <Text style={styles.buttonText2}>Login as User</Text>
+          </TouchableOpacity>
+        )}
+        </View>
+      </ScrollView>
+  )
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    marginTop:50,
+    padding: '5%',
+    marginBottom: 80,
     backgroundColor: '#eaf3f5',
-    
+   
   },
   container2: {
     justifyContent: 'flex-start',
     marginHorizontal: 15,
+   
   },
   avatar: {
     marginBottom: 10,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Button, TextInput, Image, Alert, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, TextInput, Image, Alert, Text, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useNavigation } from '@react-navigation/native';
@@ -100,6 +100,10 @@ export default function ReportScreen() {
   };
 
   return (
+    <ScrollView
+    contentContainerStyle={styles.scrollViewContainer}
+    showsVerticalScrollIndicator={false}
+  >
     <View style={styles.container}>
                 <Image source={require('../../assets/logo.png')} style={styles.logo1} />
                <View style={styles.header}>
@@ -179,6 +183,7 @@ export default function ReportScreen() {
     </TouchableOpacity>
     
     </View>
+    </ScrollView>
   );
 }
 
@@ -189,6 +194,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    marginBottom:80,
   },
   imgcontainer:{
     flexDirection:'row',
