@@ -159,7 +159,7 @@ export default function ReportScreen() {
 <TouchableOpacity
       style={[
         styles.button2,
-        { opacity: image ? 1 : 1 }, // Adjusting opacity based on image presence
+        { opacity: image ? 1 : 1 },
       ]}
       onPress={handleSubmit} 
       disabled={!image}

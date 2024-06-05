@@ -15,38 +15,48 @@ import AdminReportScreen from './src/screens/AdminReportScreen';
 import LoginScreen from './src/screens/Loginscreen';
 import RewardsScreen from './src/screens/RewardsScreen';
 import Reportpage from './src/component/ReportModal';
+import Signup from './src/screens/Signup';
+import Authscreen from './src/screens/Authscreen';
 const Stack = createNativeStackNavigator ();
 
 export default function App() {
-  const [type, settype] = useState(null)
-  const [activePage, setActivePage] = useState('Home');
-
-  useEffect(() => {
-    const get = async () =>{
-      const value = await SecureStore.getItemAsync('key');
-      if(value == null){
-          settype(null)
-      }
-      else if(value == 1){
-          settype(1)
-      }
-      else(
-        settype(2)
-      )
-    }
-    
-    get();
-  }, [])
-
-  const handleNavigationStateChange = (state) => {
-    setActivePage(state.routes[state.index].name);
-  };
+  
 
   return (
     
     <NavigationContainer>
        <StatusBar backgroundColor="#eaf3f5" />
-      <Stack.Navigator initialRouteName="Home">
+       
+
+        <Stack.Navigator initialRouteName="Inpages">
+
+            <Stack.Screen name="Inpages" component={Inpages} options={{ headerShown: false }}/>
+            <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AuthScreen" component={Authscreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
+
+
+
+        </Stack.Navigator>
+       </NavigationContainer>
+
+
+  );
+}
+
+function Inpages() {
+
+  
+  const [activePage, setActivePage] = useState('Home');
+
+
+
+  const handleNavigationStateChange = (state) => {
+    setActivePage(state.routes[state.index].name);
+  };
+  return (
+    <>
+    <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="contact" component={Contactscreen} options={{ headerShown: false }}/>
@@ -58,18 +68,13 @@ export default function App() {
 
 
 
+
  
     </Stack.Navigator>
 
-
    <Footer activePage={activePage} setActivePage={setActivePage} />
-       </NavigationContainer>
 
 
-  );
+   </>
+  )
 }
-const styles = StyleSheet.create({
-  container: {
-  
-  },
-});

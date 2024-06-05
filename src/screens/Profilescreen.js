@@ -86,6 +86,10 @@ const ProfileScreen = () => {
           <Text style={styles.buttonText2}>Rewards</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('AuthScreen')}>
+          <Text style={styles.buttonText2}>Logout</Text>
+        </TouchableOpacity>
+
         {type == 1 && (
           <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
             <Text style={styles.buttonText2}>Login as Admin</Text>

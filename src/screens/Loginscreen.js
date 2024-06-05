@@ -1,105 +1,185 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet , Image } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { LinearGradient } from 'expo-linear-gradient';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
-  const [message, setMessage] = useState('');
-  const [type, settype] = useState(null)
   const navigation = useNavigation();
-  
-  
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [userType, setUserType] = useState('resident');
+  const [isLoading, setIsLoading] = useState(false);
+  const isLoadingRef = useRef(null);
 
-  useEffect(() => {
-    const get = async () =>{
-      const value = await SecureStore.getItemAsync('key');
-      if(value == null){
-          settype(null)
-      }
-      else if(value == 1){
-          settype(1)
-      }
-      else(
-        settype(2)
-      )
-    }
-    
-    get();
-  }, [])
-
-  const handleLogin = async (userType) => {
+  const handleLogin = async () => {
     try {
-      if(userType == 'admin'){
-        settype(1)
-        await SecureStore.setItemAsync('key', 1);
-        navigation.navigate('home')
+      if (phoneNumber === '' || password === '') {
+        alert("Fill Details");
+        return;
       }
-      else{
-        settype(2)
-        await SecureStore.setItemAsync('key', 2);
-        navigation.navigate('home')
-      }
-    
-      
+
+      setIsLoading(true); // Set loading state to true
+
+      const endpoint = userType === 'resident' ? 'https://elephant-tracker-api.onrender.com/api/userauth/login' : 'https://elephant-tracker-api.onrender.com/api/officerauth/login';
+
+      const response = await axios.post(endpoint, {
+        phone_num: phoneNumber,
+        password: password,
+      });
+
+      const token = response.data.accessToken;
+      await SecureStore.setItemAsync('jwtToken', token);
+      console.log('Login Successful:', response.data);
+      SecureStore.setItemAsync('key', userType === 'resident' ? "1" : "2");
+      navigation.navigate('Home');
     } catch (error) {
-      setMessage('Error logging in');
+      if (error.response && error.response.status === 401) {
+        alert("Invalid phone number or password");
+      } else {
+        console.error('Login Error:', error);
+      }
+    } finally {
+      setIsLoading(false); // Set loading state to false
     }
   };
 
   return (
-    <View style={styles.container}>
-
-      <Image source={require('../../assets/elephantimg.png')} style={styles.logo} />
-      <View style={styles.buttonsContainer}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleLogin('admin')}>
-          <Text style={styles.buttonText}>Login as Admin</Text>
+    <SafeAreaView style={styles.container}>
+       {isLoading && (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color="#63B58C" />
+        </View>
+      )}
+      <Image source={require('../../assets/welcomeback.png')} style={styles.logo} />
+      <View style={styles.form}>
+        <Text style={styles.label}>Phone number</Text>
+        <TextInput
+          style={styles.input}
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          placeholder="876799XXXX"
+        />
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!isPasswordVisible}
+            placeholder="Password"
+          />
+          <TouchableOpacity style={styles.passwordvisibility} onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+            <Icon name={isPasswordVisible ? 'eye' : 'eye-off'} type="feather" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.radioContainer}>
+          <TouchableOpacity style={styles.radio} onPress={() => setUserType('resident')}>
+            <View style={[styles.outerCircle, userType === 'resident' && styles.selectedOuterCircle]}>
+              {userType === 'resident' && <View style={styles.innerCircle} />}
+            </View>
+            <Text style={styles.radioText}>Resident</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.radio} onPress={() => setUserType('forestOfficial')}>
+            <View style={[styles.outerCircle, userType === 'forestOfficial' && styles.selectedOuterCircle]}>
+              {userType === 'forestOfficial' && <View style={styles.innerCircle} />}
+            </View>
+            <Text style={styles.radioText}>Forest Official</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.forgotPassword}>Forget Password?</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.loginButtonText}>Log in</Text>
+          )}
         </TouchableOpacity>
       </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleLogin('user')}>
-          <Text style={styles.buttonText}>Login as User</Text>
-        </TouchableOpacity>
-      </View>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  form: {
+    flex: 0.6,
+    paddingHorizontal: 20,
+  },
+  label: {
+    fontSize: 16,
+    color: '#333',
+  },
+  logo: {
+    marginLeft: -20,
+    width: '100%',
+    height: '50%',
+  },
+  input: {
+    borderBottomWidth: 1,
+    paddingVertical: 10,
+    marginBottom: 10,
+    width: '100%',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordvisibility: {
+    right: '60%',
+  },
+  radioContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 16,
+  },
+  radio: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  outerCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#2c7a7b',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#eaf3f5',
-    zIndex:1000
+    marginRight: 8,
   },
-  message: {
-    marginBottom: 20,
-    fontSize: 18,
+  selectedOuterCircle: {
+    borderColor: '#2c7a7b',
   },
-  buttonContainer: {
-    marginHorizontal: 10,
-    
+  innerCircle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#2c7a7b',
   },
-  buttonsContainer: {
-    marginVertical: 10,
-    flexDirection:'row'
-  },
-  button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
+  radioText: {
     fontSize: 16,
   },
-  logo:{
-    width: 400,
-    height: 300,
-  }
+  forgotPassword: {
+    color: '#63B58C',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  loginButton: {
+    backgroundColor: '#63B58C',
+    paddingVertical: 15,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
 });
 
 export default LoginScreen;
