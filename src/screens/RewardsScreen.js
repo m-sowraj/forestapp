@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator,Image , TouchableOpacity , Share} from 'react-native';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 const RewardsScreen = () => {
   const [rewards, setRewards] = useState([]);
@@ -42,7 +43,8 @@ const RewardsScreen = () => {
   useEffect(() => {
     const fetchRewards = async () => {
       try {
-        const response = await axios.get('https://elephant-tracker-api.onrender.com/api/rewards/user/662bd6a5c7bb26949f85185c');
+        const Id = await SecureStore.getItemAsync('Id');
+        const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/rewards/user/${Id}`);
         setRewards(response.data.rewards);
         console.log(response.data.rewards)
         calculateTotalRewards(response.data.rewards);

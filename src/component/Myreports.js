@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, Image, StyleSheet, RefreshControl } from 'react-native';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+
 
 const Myreports = () => {
   const [messages, setMessages] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchMessages = async () => {
+    const Id = await SecureStore.getItemAsync('Id');
+
     setIsRefreshing(true);
     try {
-      const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/user/662bd6a5c7bb26949f85185c`);
+      const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/user/${Id}`);
       // Sort the sightings array based on timestamp in descending order
       const sortedSightings = response.data.sightings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setMessages(sortedSightings);

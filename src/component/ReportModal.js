@@ -2,6 +2,8 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
 
 const Reportpage = ({ route }) => {
   const { report } = route.params;
@@ -10,12 +12,13 @@ const Reportpage = ({ route }) => {
   
   const handleconfirm = async (type , id) => {
     try {
-     
+      const Id = await SecureStore.getItemAsync('Id');
+
     if(type ==1){
        
       const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
         
-            officerId: "662bdbdc6f2db6b013a3db04",
+            officerId: Id,
             confirmationStatus: "confirmed"
          
       });
@@ -27,7 +30,7 @@ const Reportpage = ({ route }) => {
        
       const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
         
-            officerId: "662bdbdc6f2db6b013a3db04",
+            officerId: Id,
             confirmationStatus: "notconfirmed"
          
       });

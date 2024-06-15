@@ -1,51 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
-
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const [type, settype] = useState(null)
+  const [profile, setProfile] = useState({
+    email: '',
+    fullname: 'ab',
+    password: '',
+    phoneNumber: '',
+  });
 
   useEffect(() => {
-    const get = async () => {
-      const value = await SecureStore.getItemAsync('key');
-      if (value == null) {
-        settype(1)
-      }
-      else if (value == 1) {
-        settype(1)
-      }
-      else {
-        settype(2)
-      }
-    }
+    const fetchProfileData = async () => {
+      try {
+        const Id = await SecureStore.getItemAsync('Id');
 
-    get();
-  }, [type])
+        const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/users/${Id}`);
+        console.log(response.data)
+        const profiledata = {
+          email:response.data.user.email,
+          fullname:response.data.user.fullname,
+          phoneNumber:response.data.user.phone_num,
+          password:'adasdas'
+
+        }
+        console.log(profiledata)
+        setProfile(profiledata);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   const handleBackPress = () => {
     navigation.goBack();
   };
 
-  const handleLogin = async (userType) => {
-    try {
-      if (userType == 'admin') {
-        settype(2)
-        SecureStore.setItemAsync('key', "2");
-      }
-      else {
-        settype(1)
-        SecureStore.setItemAsync('key', "1");
-      }
-    } catch (error) {
-
-    }
-  };
-
   return (
-       <ScrollView
+    <ScrollView
       contentContainerStyle={styles.scrollViewContainer}
       showsVerticalScrollIndicator={false}
     >
@@ -56,31 +54,27 @@ const ProfileScreen = () => {
         <Image source={require('../../assets/profile.png')} style={styles.logo} />
         <View style={styles.avatar}>
           <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>S</Text>
+            <Text style={styles.avatarText}>{profile.fullname.charAt(0)}</Text>
           </View>
         </View>
         <View style={styles.container2}>
-
           <Text style={styles.label}>Email:</Text>
-          <Text style={styles.data}>sraj@example.com</Text>
+          <Text style={styles.data}>{profile.email}</Text>
           <View style={styles.line}></View>
 
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.data}>Raj_s_Raj</Text>
-          <View style={styles.line}></View>
+         
 
           <Text style={styles.label}>Fullname:</Text>
-          <Text style={styles.data}>SowRaj</Text>
+          <Text style={styles.data}>{profile.fullname}</Text>
           <View style={styles.line}></View>
 
           <Text style={styles.label}>Password:</Text>
-          <Text style={styles.data}>*******</Text>
+          <Text style={styles.data}>{profile.password.replace(/./g, '*')}</Text>
           <View style={styles.line}></View>
 
           <Text style={styles.label}>Phone Number:</Text>
-          <Text style={styles.data}>123-456-7890</Text>
+          <Text style={styles.data}>{profile.phoneNumber}</Text>
           <View style={styles.line}></View>
-
         </View>
         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('RewardsScreen')}>
           <Text style={styles.buttonText2}>Rewards</Text>
@@ -89,39 +83,25 @@ const ProfileScreen = () => {
         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('AuthScreen')}>
           <Text style={styles.buttonText2}>Logout</Text>
         </TouchableOpacity>
-
-        {type == 1 && (
-          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('admin')}>
-            <Text style={styles.buttonText2}>Login as Admin</Text>
-          </TouchableOpacity>
-        )}
-
-        {type == 2 && (
-          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogin('user')}>
-            <Text style={styles.buttonText2}>Login as User</Text>
-          </TouchableOpacity>
-        )}
-        </View>
-      </ScrollView>
-  )
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:50,
+    marginTop: 50,
     padding: '5%',
     marginBottom: 80,
     backgroundColor: '#eaf3f5',
-   
   },
   container2: {
     justifyContent: 'flex-start',
     marginHorizontal: 15,
-   
   },
   avatar: {
     marginBottom: 10,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   avatarContainer: {
     width: 110,
@@ -143,7 +123,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginBottom: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   data: {
     fontSize: 18,

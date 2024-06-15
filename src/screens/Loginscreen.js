@@ -25,7 +25,7 @@ const LoginScreen = () => {
       setIsLoading(true); // Set loading state to true
 
       const endpoint = userType === 'resident' ? 'https://elephant-tracker-api.onrender.com/api/userauth/login' : 'https://elephant-tracker-api.onrender.com/api/officerauth/login';
-
+      console.log(phoneNumber)
       const response = await axios.post(endpoint, {
         phone_num: phoneNumber,
         password: password,
@@ -33,11 +33,14 @@ const LoginScreen = () => {
 
       const token = response.data.accessToken;
       await SecureStore.setItemAsync('jwtToken', token);
+      await SecureStore.setItemAsync('Id', response.data.Id);
+
       console.log('Login Successful:', response.data);
-      SecureStore.setItemAsync('key', userType === 'resident' ? "1" : "2");
+      await SecureStore.setItemAsync('key', userType === 'resident' ? "1" : "2");
       navigation.navigate('Home');
     } catch (error) {
       if (error.response && error.response.status === 401) {
+        console.error('Login Error:', error.response.data);
         alert("Invalid phone number or password");
       } else {
         console.error('Login Error:', error);

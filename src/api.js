@@ -29,11 +29,7 @@ api.interceptors.request.use(
     // Get user's geolocation
     const location = await getUserLocation();
   
-    if (!jwtToken) {
-      // If token is not available, redirect to login or handle the case accordingly
-      // For example, you could redirect to the login screen
-      window.location.href = '/login';
-    } else {
+    if (jwtToken){
       // Check if the token is expired
       const tokenExpiration = jwtToken && jwtToken.expiry ? new Date(jwtToken.expiry) : null;
       const currentTime = new Date();
