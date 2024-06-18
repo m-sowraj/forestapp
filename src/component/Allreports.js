@@ -43,7 +43,7 @@ const Allreports = () => {
         >
           {messages.map((message, index) => (
             <View key={index} style={styles.messageBubble}>
-              <Image source={require('../../assets/user.png')} style={styles.avatar} />
+              <Image source={{ uri: message.image_url }} style={styles.avatar} />
               <View style={styles.messageContent}>
                 <Text>{message.description}</Text>
                 <Text style={styles.status}> Accepted by: {message.confirmed_by.name}</Text>

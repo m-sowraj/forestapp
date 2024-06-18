@@ -1,85 +1,118 @@
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, TouchableWithoutFeedback } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-
+import { Audio } from 'expo-av';
 
 const Reportpage = ({ route }) => {
   const { report } = route.params;
-  console.log(report)
   const navigation = useNavigation();
-  
-  const handleconfirm = async (type , id) => {
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false); // State to control image modal
+
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [sound]);
+
+  const handlePlayAudio = async (audioUrl) => {
+    const { sound: newSound } = await Audio.Sound.createAsync(
+      { uri: audioUrl },
+      { shouldPlay: true }
+    );
+
+    setSound(newSound);
+    setIsPlaying(true);
+  };
+
+  const handleStopAudio = async () => {
+    if (sound) {
+      await sound.stopAsync();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleConfirm = async (type, id) => {
     try {
       const Id = await SecureStore.getItemAsync('Id');
 
-    if(type ==1){
-       
-      const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
-        
-            officerId: Id,
-            confirmationStatus: "confirmed"
-         
+      const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`, {
+        officerId: Id,
+        confirmationStatus: type === 1 ? "confirmed" : "notconfirmed"
       });
-    
-      console.log(response1.data);
-    
-    } 
-    else{
-       
-      const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
-        
-            officerId: Id,
-            confirmationStatus: "notconfirmed"
-         
-      });
-     
-      console.log(response1.data);
-    }
-    }
-     catch (error) {
-      console.error('Error fetching messages:', error);
-    } finally {
-      navigation.navigate('AdminReportScreen')
-    }
-    }
 
-  const handleClose = () => {
-    // Implement close functionality here
-    console.log("Modal closed");
+      console.log(response1.data);
+    } catch (error) {
+      console.error('Error confirming report:', error);
+    } finally {
+      navigation.navigate('AdminReportScreen');
+    }
+  };
+
+  const toggleImageModal = () => {
+    setShowImageModal(!showImageModal);
   };
 
   return (
-
-      <View style={styles.modalContent}>
-        <View style={styles.toplayer}>
-        <Image source={require('../../assets/user.png')} style={styles.avatar} />
+    <View style={styles.modalContent}>
+      <View style={styles.toplayer}>
+        <TouchableOpacity onPress={toggleImageModal}>
+          <Image source={{ uri: report.image_url }} style={styles.avatar} />
+        </TouchableOpacity>
         <View style={styles.topleftplayer}>
-        <Text style={styles.name}>{report.user_id.fullname}</Text>
-        <View style={styles.toplayer}>
-        <Image source={require('../../assets/greenphone.png')} style={styles.avatar1} />
-        <Text style={styles.phone}>{report.user_id.phone_num}</Text>
-
-        </View>
-        </View>
-        </View>
-        <Text style={styles.description}>{report.description}</Text>
-        <Text style={styles.timestamp}>{new Date(report.timestamp).toLocaleString()}</Text>
-        {/* Add other details like image, user name, phone number, etc. */}
-        <TouchableOpacity style={[styles.button, styles.aanButton]} onPress={()=>handleconfirm(1,report._id)}>
-            <Text style={styles.buttonText}>Approve and notify</Text>
-          </TouchableOpacity>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={()=>handleconfirm(1,report._id)}>
-            <Text style={styles.buttonText}>Approve</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={()=>handleconfirm(2,report._id)}>
-            <Text style={styles.buttonText}>Decline</Text>
-          </TouchableOpacity>
+          <Text style={styles.name}>{report.user_id.fullname || report.user_id.name }</Text>
+          <View style={styles.toplayer}>
+            <Image source={require('../../assets/greenphone.png')} style={styles.avatar1} />
+            <Text style={styles.phone}>{report.user_id.phone_num || report.user_id.phone}</Text>
+          </View>
         </View>
       </View>
 
+      <Modal
+        visible={showImageModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={toggleImageModal}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableWithoutFeedback onPress={toggleImageModal}>
+            <Image source={{ uri: report.image_url }} style={styles.fullScreenImage} resizeMode="contain" />
+          </TouchableWithoutFeedback>
+        </View>
+      </Modal>
+
+      <Text style={styles.description}>{report.description}</Text>
+      <Text style={styles.timestamp}>{new Date(report.timestamp).toLocaleString()}</Text>
+      {report.audio_url && (
+        <>
+          {isPlaying ? (
+            <TouchableOpacity style={styles.button} onPress={handleStopAudio}>
+              <Text style={styles.stopButton}>Stop Audio</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={() => handlePlayAudio(report.audio_url)}>
+              <Text style={styles.playButton}>Play Audio</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+      <TouchableOpacity style={[styles.button, styles.aanButton]} onPress={() => handleConfirm(1, report._id)}>
+        <Text style={styles.buttonText}>Approve and notify</Text>
+      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleConfirm(1, report._id)}>
+          <Text style={styles.buttonText}>Approve</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleConfirm(2, report._id)}>
+          <Text style={styles.buttonText}>Decline</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -88,13 +121,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
   },
   modalContent: {
     backgroundColor: '#fff',
-    marginHorizontal:15,
-    marginVertical:20,
-    borderRadius:20,
+    marginHorizontal: 15,
+    marginVertical: 20,
+    borderRadius: 20,
     padding: 20,
     elevation: 5,
   },
@@ -107,31 +140,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 20,
   },
-  aanButton:{
-    width:'100%',
-    backgroundColor:'grey',
-    marginBottom:10
+  aanButton: {
+    width: '100%',
+    backgroundColor: 'grey',
+    marginBottom: 10,
   },
-  toplayer:{
-    flexDirection:'row',
-   
+  toplayer: {
+    flexDirection: 'row',
   },
-  avatar1:{
-    marginTop:5,
+  avatar1: {
+    marginTop: 5,
     width: 16,
     height: 16,
-   
   },
-  topleftplayer:{
-    justifyContent:'center',
-    flexDirection:'col',
-    paddingLeft:25,
+  topleftplayer: {
+    justifyContent: 'center',
+    flexDirection: 'column',
+    paddingLeft: 25,
   },
-  name:{
-    fontWeight:'bold',
-    fontSize:20,
+  name: {
+    fontWeight: 'bold',
+    fontSize: 20,
   },
-  phone:{fontSize:15,},
+  phone: {
+    fontSize: 15,
+  },
   closeButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -153,16 +186,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginHorizontal: 5,
-    justifyContent:'center',
-    alignItems:'center'
-    
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   acceptButton: {
-    width:'48%',
+    width: '48%',
     backgroundColor: 'grey',
   },
   rejectButton: {
-    width:'48%',
+    width: '48%',
     backgroundColor: 'grey',
   },
   buttonText: {
@@ -173,6 +205,30 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 20,
     marginBottom: 10,
+  },
+  playButton: {
+    color: 'white',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 7,
+    width: '108%',
+    backgroundColor: '#00C782',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stopButton: {
+    color: 'white',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 7,
+    width: '108%',
+    backgroundColor: '#00C782',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

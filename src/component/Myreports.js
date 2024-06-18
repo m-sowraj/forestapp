@@ -42,7 +42,10 @@ const Myreports = () => {
     >
       {messages.map((message, index) => (
         <View key={index} style={styles.messageBubble}>
-          <Image source={require('../../assets/user.png')} style={styles.avatar} />
+           <Image 
+            source={message.image_url ? { uri: message.image_url } : require('../../assets/user.png')}
+            style={styles.avatar} 
+          />
           <View style={styles.messageContent}>
             <Text>{message.description}</Text>
             <Text style={styles.status}> {message.confirmed ? 'Confirmed' : 'Not Confirmed'}</Text>

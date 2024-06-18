@@ -3,6 +3,7 @@ import { ScrollView, View, Text, Image, StyleSheet, RefreshControl ,  TouchableO
 import axios from 'axios';
 import ReportModal from './ReportModal';
 import { useNavigation } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 
 const PendingReports = () => {
   const [messages, setMessages] = useState([]);
@@ -42,12 +43,13 @@ const PendingReports = () => {
 
   const handleconfirm = async (type , id) => {
     try {
+      const Id = await SecureStore.getItemAsync('Id');
       setIsRefreshing(true);
     if(type ==1){
        
       const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
         
-            officerId: "662bdbdc6f2db6b013a3db04",
+            officerId: Id,
             confirmationStatus: "confirmed"
          
       });
@@ -59,7 +61,7 @@ const PendingReports = () => {
        
       const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`,{
         
-            officerId: "662bdbdc6f2db6b013a3db04",
+            officerId: Id,
             confirmationStatus: "notconfirmed"
          
       });
@@ -88,7 +90,7 @@ const PendingReports = () => {
          <TouchableOpacity key={index} onPress={() => handleReportPress(message)}>
         <View key={index} style={styles.messageBubble}>
         {/* <ReportModal visible={modalVisible} onClose={() => setModalVisible(false)} report={selectedReport} /> */}
-          <Image source={require('../../assets/user.png')} style={styles.avatar} />
+          <Image source={{ uri: message.image_url }} style={styles.avatar} />
           <View style={styles.messageContent}>
             <Text>{message.description}</Text>
             <Text>{new Date(message.timestamp).toLocaleString()}</Text>

@@ -18,6 +18,7 @@ import Reportpage from './src/component/ReportModal';
 import Signup from './src/screens/Signup';
 import Authscreen from './src/screens/Authscreen';
 import ContactScreen from './src/screens/Contactscreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -26,7 +27,7 @@ export default function App() {
   useEffect(() => {
     const checkToken = async () => {
       const token = await SecureStore.getItemAsync('jwtToken');
-      setInitialRoute(token ? 'Home' : 'AuthScreen');
+      setInitialRoute(token ? 'Inpages' : 'AuthScreen');
     };
 
     checkToken();
@@ -66,7 +67,7 @@ function Inpages() {
         <Stack.Screen name="ReportsScreen" component={ReportsScreen} />
         <Stack.Screen name="AdminReportScreen" component={AdminReportScreen} />
         <Stack.Screen name="RewardsScreen" component={RewardsScreen} />
-        <Stack.Screen name="ReportPage" component={Reportpage} />
+        <Stack.Screen name="Reportpage" component={Reportpage} />
       </Stack.Navigator>
       <Footer activePage={activePage} setActivePage={setActivePage} />
     </>

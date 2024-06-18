@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Image, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from '@react-navigation/native';
@@ -13,7 +12,6 @@ const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [userType, setUserType] = useState('resident');
   const [isLoading, setIsLoading] = useState(false);
-  const isLoadingRef = useRef(null);
 
   const handleLogin = async () => {
     try {
@@ -25,7 +23,7 @@ const LoginScreen = () => {
       setIsLoading(true); // Set loading state to true
 
       const endpoint = userType === 'resident' ? 'https://elephant-tracker-api.onrender.com/api/userauth/login' : 'https://elephant-tracker-api.onrender.com/api/officerauth/login';
-      console.log(phoneNumber)
+
       const response = await axios.post(endpoint, {
         phone_num: phoneNumber,
         password: password,
@@ -34,10 +32,10 @@ const LoginScreen = () => {
       const token = response.data.accessToken;
       await SecureStore.setItemAsync('jwtToken', token);
       await SecureStore.setItemAsync('Id', response.data.Id);
+      await SecureStore.setItemAsync('key', userType === 'resident' ? "1" : "2");
 
       console.log('Login Successful:', response.data);
-      await SecureStore.setItemAsync('key', userType === 'resident' ? "1" : "2");
-      navigation.navigate('Home');
+      navigation.navigate('Inpages');
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Login Error:', error.response.data);
@@ -52,57 +50,65 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-       {isLoading && (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color="#63B58C" />
-        </View>
-      )}
-      <Image source={require('../../assets/welcomeback.png')} style={styles.logo} />
-      <View style={styles.form}>
-        <Text style={styles.label}>Phone number</Text>
-        <TextInput
-          style={styles.input}
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          keyboardType="phone-pad"
-          placeholder="876799XXXX"
-        />
-        <Text style={styles.label}>Password</Text>
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!isPasswordVisible}
-            placeholder="Password"
-          />
-          <TouchableOpacity style={styles.passwordvisibility} onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-            <Icon name={isPasswordVisible ? 'eye' : 'eye-off'} type="feather" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.radioContainer}>
-          <TouchableOpacity style={styles.radio} onPress={() => setUserType('resident')}>
-            <View style={[styles.outerCircle, userType === 'resident' && styles.selectedOuterCircle]}>
-              {userType === 'resident' && <View style={styles.innerCircle} />}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {isLoading && (
+            <View style={styles.loader}>
+              <ActivityIndicator size="large" color="#63B58C" />
             </View>
-            <Text style={styles.radioText}>Resident</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.radio} onPress={() => setUserType('forestOfficial')}>
-            <View style={[styles.outerCircle, userType === 'forestOfficial' && styles.selectedOuterCircle]}>
-              {userType === 'forestOfficial' && <View style={styles.innerCircle} />}
-            </View>
-            <Text style={styles.radioText}>Forest Official</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.forgotPassword}>Forget Password?</Text>
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={isLoading}>
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.loginButtonText}>Log in</Text>
           )}
-        </TouchableOpacity>
-      </View>
+          <Image source={require('../../assets/welcomeback.png')} style={styles.logo} />
+          <View style={styles.form}>
+            <Text style={styles.label}>Phone number</Text>
+            <TextInput
+              style={styles.input}
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              keyboardType="phone-pad"
+              placeholder="876799XXXX"
+            />
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!isPasswordVisible}
+                placeholder="Password"
+              />
+              <TouchableOpacity style={styles.passwordvisibility} onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+                <Icon name={isPasswordVisible ? 'eye' : 'eye-off'} type="feather" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.radioContainer}>
+              <TouchableOpacity style={styles.radio} onPress={() => setUserType('resident')}>
+                <View style={[styles.outerCircle, userType === 'resident' && styles.selectedOuterCircle]}>
+                  {userType === 'resident' && <View style={styles.innerCircle} />}
+                </View>
+                <Text style={styles.radioText}>Resident</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.radio} onPress={() => setUserType('forestOfficial')}>
+                <View style={[styles.outerCircle, userType === 'forestOfficial' && styles.selectedOuterCircle]}>
+                  {userType === 'forestOfficial' && <View style={styles.innerCircle} />}
+                </View>
+                <Text style={styles.radioText}>Forest Official</Text>
+              </TouchableOpacity>
+            </View>
+            {/* <Text style={styles.forgotPassword}>Forget Password?</Text> */}
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.loginButtonText}>Log in</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -111,9 +117,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   form: {
     flex: 0.6,
     paddingHorizontal: 20,
+    justifyContent: 'center',
   },
   label: {
     fontSize: 16,
@@ -135,7 +146,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   passwordvisibility: {
-    right: '60%',
+    position: 'absolute',
+    right: 10,
+    top: 12,
   },
   radioContainer: {
     flexDirection: 'row',
@@ -182,6 +195,12 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  loader: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

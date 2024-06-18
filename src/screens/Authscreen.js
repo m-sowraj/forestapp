@@ -8,7 +8,7 @@ const Authscreen = () => {
 
   return (
     <View style={styles.container}>
-    <Image source={require('../../assets/welcomeback.png')} style={styles.logo} />
+    <Image source={require('../../assets/getstarted.png')} style={styles.logo} />
 
     
     <View style={styles.buttonContainer}>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   logo: {
     marginLeft: -20,
     width: '100%',
-    height: '50%',
+    height: '64%',
   },
   title: {
     fontSize: 32,

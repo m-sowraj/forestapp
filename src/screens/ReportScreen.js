@@ -14,14 +14,6 @@ export default function ReportScreen() {
   const [audioUri, setAudioUri] = useState(null);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Sorry, we need camera roll permissions to make this work!');
-      }
-    })();
-  }, []);
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -63,12 +55,16 @@ export default function ReportScreen() {
   const handleSubmit = async () => {
     const Id = await SecureStore.getItemAsync('Id');
     const location = await getLocation();
-
+    const key = await SecureStore.getItemAsync('key');
+    
     const formData = new FormData();
     formData.append('user_id', Id);
     formData.append('latitude', location.latitude);
     formData.append('longitude', location.longitude);
     formData.append('description', description);
+    formData.append('user_type', key == '1' ? 'User' : 'Officer');
+
+   
 
     if (image) {
       let localUri = image;

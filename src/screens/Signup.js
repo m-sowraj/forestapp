@@ -52,7 +52,7 @@ export default function Signup() {
     }
   
     // Password strength validation
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
     if (!strongPasswordRegex.test(password)) {
         alert('Password must meet the following criteria:\n\n' +
         '- At least 8 characters long\n' +
@@ -62,6 +62,8 @@ export default function Signup() {
         '- Contains at least one special character\n');
       return;
     }
+
+  
   
     // Confirm password validation
     if (password !== confirmPassword) {
@@ -70,6 +72,7 @@ export default function Signup() {
     }
   
     // All validations passed, send data to backend
+
     const formData = {
         fullname: fullName,
         phone_num: phoneNumber,
@@ -113,7 +116,7 @@ export default function Signup() {
 
   return (
     <SafeAreaView style={styles.container}>
-    <Image source={require('../../assets/welcomeback.png')} style={styles.logo} />
+    <Image source={require('../../assets/welcome.png')} style={styles.logo} />
     <KeyboardAvoidingView  behavior="padding">
       <ScrollView contentContainerStyle={styles.scrollContainer}>
          <View style={styles.form}>
@@ -162,7 +165,7 @@ export default function Signup() {
               <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={24} color="black" />
             </TouchableOpacity>
           </View>
-          <View style={styles.radioContainer}>
+          {/* <View style={styles.radioContainer}>
             <TouchableOpacity style={styles.radio} onPress={() => setRole('Resident')}>
               <View style={[styles.outerCircle, role === 'Resident' && styles.selectedOuterCircle]}>
                 {role === 'Resident' && <View style={styles.innerCircle} />}
@@ -175,7 +178,7 @@ export default function Signup() {
               </View>
               <Text style={styles.radioText}>Forest Official</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
           <TouchableOpacity
             style={styles.button2}
             // onPress={handleSubmit} 
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   logo:{
    
     marginLeft:-20,
-    width: '100%',
+    width: '75%',
     height: '30%',
   },
   

@@ -18,6 +18,10 @@ const ProfileScreen = () => {
     const fetchProfileData = async () => {
       try {
         const Id = await SecureStore.getItemAsync('Id');
+        const Key = await SecureStore.getItemAsync('key');
+        console.log(Key)
+        if(Key == '1'){      
+        console.log('hi')
 
         const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/users/${Id}`);
         console.log(response.data)
@@ -30,6 +34,21 @@ const ProfileScreen = () => {
         }
         console.log(profiledata)
         setProfile(profiledata);
+      }else{
+
+        const response = await axios.get(`https://elephant-tracker-api.onrender.com/api/officers/${Id}`);
+        console.log(response.data)
+        const profiledata = {
+          email:response.data.officer.email,
+          fullname:response.data.officer.name,
+          phoneNumber:response.data.officer.phone,
+          password:'adasdas'
+
+        }
+        console.log(profiledata)
+        setProfile(profiledata);
+
+      }
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -40,6 +59,19 @@ const ProfileScreen = () => {
 
   const handleBackPress = () => {
     navigation.goBack();
+  };
+
+  const logout = async () => {
+    try {
+      await SecureStore.deleteItemAsync('Id');
+      await SecureStore.deleteItemAsync('jwtToken');
+      await SecureStore.deleteItemAsync('key');
+
+
+      navigation.navigate('AuthScreen');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (
@@ -80,7 +112,7 @@ const ProfileScreen = () => {
           <Text style={styles.buttonText2}>Rewards</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('AuthScreen')}>
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.buttonText2}>Logout</Text>
         </TouchableOpacity>
       </View>
