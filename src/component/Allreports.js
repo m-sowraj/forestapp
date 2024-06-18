@@ -26,7 +26,6 @@ const Allreports = () => {
     }
   };
   
-
   const handleRefresh = () => {
     setIsRefreshing(true);
     fetchSightings();
