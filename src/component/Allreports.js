@@ -32,6 +32,8 @@ const Allreports = () => {
     fetchSightings();
   };
 
+  
+
   return (
     <View style={styles.container}>
       {isLoading ? (
