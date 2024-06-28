@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, ActivityIndicator, View } from 'react-native';
+import { StyleSheet, Text, ActivityIndicator, View, Alert, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Footer from './src/component/footer';
@@ -16,51 +16,64 @@ import RewardsScreen from './src/screens/RewardsScreen';
 import Reportpage from './src/component/ReportModal';
 import Signup from './src/screens/Signup';
 import Authscreen from './src/screens/Authscreen';
-import ContactScreen from './src/screens/Contactscreen'; // Remove duplicate import
+import ContactScreen from './src/screens/Contactscreen'; 
 import io from 'socket.io-client';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
+import messaging from "@react-native-firebase/messaging";
 
 const socket = io('https://elephant-tracker-api.onrender.com/');
 
 const Stack = createNativeStackNavigator();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
-
-
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
 
-  useEffect(() => {
-    registerForPushNotificationsAsync();
+  const requestPermissions = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled = 
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    socket.on('elephant_sighting_confirmed', (data) => {
-      console.log('Notification received:', data);
-      console.log(data.message, data.sighting.description)
-      showNotification(data.message, data.sighting.description);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-
-  const showNotification = async (title, message) => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: title,
-        body: message,
-      },
-      trigger: { seconds: 2 },
-    });
+    if (enabled) {
+      console.log("Authorization status:", authStatus);
+      await messaging().subscribeToTopic('all');
+    } else {
+      console.log("Permission not granted:", authStatus);
+    }
   };
+
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      try {
+        await requestPermissions();
+        const token = await messaging().getToken();
+        console.log("FCM Token:", token);
+        
+        // Handle notification when app is opened from a quit state
+        const initialNotification = await messaging().getInitialNotification();
+        if (initialNotification) {
+          console.log("Initial Notification:", initialNotification.data);
+        }
+
+        // Handle notification when the app is in the background or killed state
+        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+          console.log("Background notification:", remoteMessage.data);
+        });
+        messaging().onMessageReceived(async (remoteMessage) => {
+          console.log("Background notification:", remoteMessage.data);
+        })
+
+        // Handle notification when app is running in the foreground
+        messaging().onMessage(async (remoteMessage) => {
+          Alert.alert(JSON.stringify(remoteMessage.data.title), JSON.stringify(remoteMessage.data.body));
+        });
+
+      
+      } catch (error) {
+        console.error("Error initializing notifications:", error);
+      }
+    };
+    initializeNotifications();
+  }, []);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -110,67 +123,4 @@ function Inpages() {
       <Footer activePage={activePage} setActivePage={setActivePage} />
     </>
   );
-}
-
-// async function registerForPushNotificationsAsync() {
-//   const { status } = await Notifications.requestPermissionsAsync();
-//   if (status !== 'granted') {
-//     alert('Failed to get push token for push notification!');
-//     return;
-//   }
-
-//   Notifications.setNotificationChannelAsync('default', {
-//     name: 'default',
-//     importance: Notifications.AndroidImportance.MAX,
-//     vibrationPattern: [0, 250, 250, 250],
-//     lightColor: '#FF231F7C',
-//   });
-// }
-
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    // Learn more about projectId:
-    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-    // EAS projectId is used here.
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-      if (!projectId) {
-        throw new Error('Project ID not found');
-      }
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-      console.log(token);
-    } catch (e) {
-      token = `${e}`;
-    }
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
-  return token;
 }

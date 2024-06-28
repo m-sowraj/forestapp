@@ -33,3 +33,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+google-services.json
+forest-app-anthills-firebase-adminsdk-x8g8f-cba7beda11.json

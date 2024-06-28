@@ -37,13 +37,15 @@ const Reportpage = ({ route }) => {
     }
   };
 
-  const handleConfirm = async (type, id) => {
+  const handleConfirm = async (type, id , notif) => {
     try {
       const Id = await SecureStore.getItemAsync('Id');
 
       const response1 = await axios.put(`https://elephant-tracker-api.onrender.com/api/elephant-sightings/${id}/confirm`, {
         officerId: Id,
-        confirmationStatus: type === 1 ? "confirmed" : "notconfirmed"
+        confirmationStatus: type === 1 ? "confirmed" : "notconfirmed",
+        NotificationStatus: notif === 1 ? "yes" : "no"
+
       });
 
       console.log(response1.data);
@@ -101,14 +103,14 @@ const Reportpage = ({ route }) => {
           )}
         </>
       )}
-      <TouchableOpacity style={[styles.button, styles.aanButton]} onPress={() => handleConfirm(1, report._id)}>
+      <TouchableOpacity style={[styles.button, styles.aanButton]} onPress={() => handleConfirm(1, report._id , 1)}>
         <Text style={styles.buttonText}>Approve and notify</Text>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleConfirm(1, report._id)}>
+        <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleConfirm(1, report._id , 0)}>
           <Text style={styles.buttonText}>Approve</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleConfirm(2, report._id)}>
+        <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleConfirm(2, report._id , 0)}>
           <Text style={styles.buttonText}>Decline</Text>
         </TouchableOpacity>
       </View>
